@@ -1,0 +1,11 @@
+udods is the University of Delaware version of the C++ files associated 
+with Pat Morin's Open Data structures online text (itself a Github project).  
+
+The initial files are those of Morin's ods/cpp/ directory.
+
+The udods project is for the course CISC 220 Data Structures.  We will be modifying files for 
+(a) bug fixes, 
+(b) creation of variant functionality, and 
+(c) introduction of new implementations of various data structures.
+
+Specific assignments in the course will use specific versions of udods.
