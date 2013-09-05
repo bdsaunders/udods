@@ -32,6 +32,12 @@ public:
 	virtual void add(T x) { add(size(), x); }
 	virtual T remove(int i);
 	virtual void clear();
+
+	// standard Stack interface:
+	void push(T x) { add(size(), x); }
+	void pop() { remove(size()-1); } // invalid to call pop on an empty Stack
+	T top() { return a[size()-1]; } // invalid to call top on an empty Stack
+	bool isEmpty() { return size() == 0; }
 };
 
 template<class T> inline
