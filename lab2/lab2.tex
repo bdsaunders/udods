@@ -1,0 +1,52 @@
+\documentclass[]{article}
+
+\usepackage{epsfig}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{center}
+Lab 2, 2013 Sept 7, Dynamic array amortized analysis
+\end{center}
+
+When adding an item to an ArrayStack that is already full, the underlying array must be expanded (resized to a larger size).  How much larger is advisable?
+
+When removing an item from an ArrayStack, it may be appropriate to shrink (resize to a smaller size) the underlying array to avoid an excessive amount of wasted (empty) array space.
+What threshold should trigger the resizing?
+
+To consider these questions,
+let us define the {\em disuse factor} of an ArrayStack.  The disuse factor is \verb|a.length/n|, which is to say, the ratio of 
+the total space allocated in the underlying array to the number of Stack items actually present.  It is a measure that varies as the stack is used.
+For example,
+an ArrayStack is half full when the disuse factor is 2, and one third full when the disuse factor is 3. The higher the disuse factor is, the more there is unused space in the array.
+
+Answers to the above two questions are embedded in ArrayStack.h and those answers were discussed in class.  The strategy there is to double the array length at each expanding resize() call and to trigger a shrinking resize to two thirds of the previous length when the Stack data amount n gets down to one third of the length.  Thus after each resize the disuse factor was 2, however during a series of removals, juse before the resize(), the disuse factor could get as high as 3.  But a nice thing about those numbers was the following:  It was shown in class that if each item addition and item removal were ``charged" for the cost of copying two items, then in a sequence of additions and removals from the Stack, the actual number of items copied during resize() operations would never exceed the nominal ``charges" already made.  Thus any sequence of k additions and removals starting from an empty Stack costs O(k) time.  In this situation we say the {\em amortized cost} of each addition or removal is O(1).
+
+Professor Shirley Tweakit would like to modify ArrayStack so that the underlying array is never less than half full (disuse factor maximum is 2).  She has modified the code so that you can set the fullness that exists after each resize() with the static constant \verb|resizeFactor|.  The static constant \verb|resizeShrinkTrigger| determines the highest disuse factor you will tolerate.  In other words it determines whether or not you should resize when removing an item.  In short, Shirley is demanding that \verb|resizeShrinkTrigger = 2| and that \verb|resizeFactor| is at most 2.
+
+Professor Tweakit's research assistant, Cliff Hanger, does not quite understand or believe the amortization analysis made in class, and he certainly doesn't trust that it will be remain true after you adjust the \verb|resizeFactor| and \verb|resizeShrinkTrigger| to meet Prof. Tweakit's demand.  
+He realizes you will probably have to increase the ``charges" to the addition and removal functions and he knows that you will make some beautiful and clear explanation of why the cost of any sequence of operations runs in amortized O(1) per operation time.  As much as he is looking forward to reading your explanations, he's a ``let me see it in action" kind of guy.  He'd like a sanity check, measurements on an example run or two.  For this purpose, `Cliff has devised a sort of banking scheme within the ArrayStack implementation to see if the ``charges" for copying really do stay ahead of the actual copying done in resize().   The charges for copying during an addition or removal operation are accumulated in a ``savings account" which is then depleted during a resize operation.  The savings must always be sufficient to pay for the copying during the resize().
+The savings account is called \verb|ccs| (copy cost savings) and the amount of each charge is \verb|ccfa| for additions and \verb|ccfr| for removals.
+In summary, Cliff has made the virtual accounting used in the analysis of ArrayStack into actual accounting within the implementation.  While this unnecessarily raises the cost of the operations of ArrayStack it gives us a nice sanity check.  Let's tolerate Mr. Hanger's accounting gizmo until ArrayStack is thoroughly tested and ready to distribute for production use by the world.
+
+Cliff's version of ArrayStack.h is HangerStack.h, a part of this lab.  Also ArrayStackTest.cpp is a program that 
+tests it.  These files are in the GIT repository in the subdirectory \verb|udods/lab2|.  Copy these files into your lab2 project and make modifications as described below to complete the lab.  
+Your program will also access ArrayStack.h, array.h, and utils.h from the udods source file collection.  If you haven't --- using GIT --- placed those in a subdirectory of your working directory called udods (as Shirley has done), then you will need to modify the \#include directives at the top of ArrayStack.h.
+
+
+
+In HangerStack.h, set \verb|resizeShrinkTrigger = 2| (the worst disuse factor we are willing to accept).
+Then adjust \verb|resizeFactor| (the disuse factor immediately after array reallocation) and \verb|ccfa| and \verb|ccfr| so that ArrayStackTest.cpp compiles and runs without error.
+
+Submit your values for \verb|resizeFactor|, \verb|ccfa|, and \verb|ccfr|.  We will believe you that your values passed the test case in ArrayStack.cpp.  However that is just one test case.  Also submit an explanation of why your values work in all cases.  That is, your values ensure adequate savings for the copying cost in the resize() operations for any sequence of additions and removals.  Don't worry about sequences with more removals than additions.  They are illegal anyway, since they try to remove from an empty Stack.  Submit your values and explanation as a .doc or .pdf in Sakai.
+Submission is due at the latest midnight Thursday, September 13.
+
+Optionally you may work in pairs.  If you do so, both partners submit the lab, each naming in the submission who their partner is. 
+
+Extra credit: Dr. Shirley's other assistant, Dee Taylor, observes that some Stack use patterns involve Stack whose size, n, varies up and down rapidly in the 0 to 10 range.  Dee feels that it is silly in that case be constantly reallocating small arrays of sizes like 1, 2, 4, 8, etc. to keep the disuse factor at most 2.  Dee's motto is ``It is fine if unused array space is the greater of 10 or n (disuse factor 2) at any given time."
+For extra credit, modify and include in your submission a TaylorStack.h such that it avoids ever setting the array length to less than 10 but assures that disuse factor remains below 2 at all times when n is greater than 10.  
+Extra credit is graded on an all or nothing basis (submit only if you are pretty sure you nailed it) and the credit can make up for something deducted on other lab work. 
+.
+\end{document}
+
