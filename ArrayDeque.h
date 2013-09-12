@@ -8,7 +8,6 @@
 #ifndef ARRAYDEQUE_H_
 #define ARRAYDEQUE_H_
 #include "array.h"
-#include "utils.h"
 
 namespace ods {
 
@@ -21,13 +20,13 @@ protected:
 	void resize();
 public:
 	ArrayDeque();
-	virtual ~ArrayDeque();
+	~ArrayDeque();
 	int size();
 	T get(int i);
 	T set(int i, T x);
-	virtual void add(int i, T x);
-	virtual T remove(int i);
-	virtual void clear();
+	void add(int i, T x);
+	T remove(int i);
+	void clear();
 };
 
 template<class T> inline

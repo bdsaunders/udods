@@ -3,7 +3,8 @@
  *
  *  Created on: 2011-11-25
  *      Author: morin
- *       FIXME: This code is completely untested (but was ported from tested Java code)
+ *      FIXME: This code is completely untested (but was ported from tested Java code)
+ *      WORKINGONIT.  null removed, test being developed -bds 2013Sept.
  */
 
 #ifndef SLLIST_H_
@@ -14,15 +15,14 @@ namespace ods {
 
 template<class T>
 class SLList {
-	T null;
 protected:
 	class Node {
 	public:
 		T x;
 		Node *next;
-		Node(T x0) {
-			x = 0;
-			next = NULL;
+		Node(T x0, Node *np = NULL) {
+			x = x0;
+			next = np;
 		}
 	};
 	Node *head;
@@ -32,7 +32,6 @@ protected:
 public:
 
 	SLList() {
-		null = (T)NULL;
 		n = 0;
 		head = tail = NULL;
 	}
@@ -54,7 +53,7 @@ public:
 		return head->x;
 	}
 
-	bool add(T x) {
+	void add(T x) { // queue name for "add at tail"
 		Node *u = new Node(x);
 		if (n == 0) {
 			head = u;
@@ -63,39 +62,26 @@ public:
 		}
 		tail = u;
 		n++;
-		return true;
 	}
 
-	T push(T x) {
-		Node *u = new Node(x);
-		u->next = head;
-		head = u;
-		if (n == 0)
-			tail = u;
+	void push(T x) { // stack name for "add at head"
+		head = new Node(x, head);
 		n++;
-		return x;
+		if (tail == NULL) tail = head;
 	}
 
-	T remove() {
-		if (n == 0)	return null;
-		T x = head->x;
+	void remove() { // queue name for "remove head".  List must be nonempty.
+		if (n == 0)	throw 99;
 		Node *u = head;
 		head = head->next;
 		delete u;
-		if (--n == 0) tail = NULL;
-		return x;
+		n--;
+		if (n == 0) tail = NULL;
 	}
 
-	T pop() {
-		if (n == 0)	return null;
-		T x = head->x;
-		Node *u = head;
-		head = head->next;
-		delete u;
-		if (--n == 0) tail = NULL;
-		return x;
+	void pop() { // stack name for "remove head".  List must be nonempty.
+		remove(); 
 	}
-
 
 };
 

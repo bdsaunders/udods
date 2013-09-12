@@ -24,14 +24,13 @@ protected:
 	virtual void resize();
 public:
 	ArrayStack();
-	virtual ~ArrayStack();
+	~ArrayStack();
 	int size();
 	T get(int i);
 	T set(int i, T x);
-	virtual void add(int i, T x);
-	virtual void add(T x) { add(size(), x); }
-	virtual T remove(int i);
-	virtual void clear();
+	void add(int i, T x);
+	T remove(int i);
+	void clear();
 
 	// standard Stack interface:
 	void push(T x) { add(size(), x); }
