@@ -29,6 +29,7 @@ public:
 	T get(int i);
 	T set(int i, T x);
 	void add(int i, T x);
+	void add(T x) { add(size(), x); }
 	T remove(int i);
 	void clear();
 
