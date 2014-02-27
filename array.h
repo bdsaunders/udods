@@ -31,7 +31,7 @@ public:
 	void fill(T x);
 	virtual ~array();
 
-	array<T>& operator=(array<T> &b) {
+	array<T>& operator=(array<T> &b) { // steals b's memory!
 		if (a != NULL) delete[] a;
 		a = b.a;
 		b.a = NULL;

@@ -14,8 +14,9 @@ template<class T>
 class DLList {
 protected:
 	struct Node {
+		Node *prev;
 		T x;
-		Node *prev, *next;
+		Node *next;
 	};
 	Node dummy;
 	int n;
@@ -24,14 +25,13 @@ protected:
 	Node* getNode(int i);
 public:
 	DLList();
-	virtual ~DLList();
+	~DLList();
 	int size() { return n; }
 	T get(int i);
 	T set(int i, T x);
-	virtual void add(int i, T x);
-	virtual void add(T x) { add(size(), x); }
-	virtual T remove(int i);
-	virtual void clear();
+	void add(int i, T x);
+	T remove(int i);
+	void clear();
 };
 
 template<class T>
