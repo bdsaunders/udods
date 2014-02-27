@@ -3,108 +3,122 @@
  *
  *  Created on: 2011-11-23
  *      Author: morin
+ *  Modifications: 2014Feb by Saunders
  */
 
 #ifndef ARRAYDEQUE_H_
 #define ARRAYDEQUE_H_
-#include "array.h"
-#include "utils.h"
 
 namespace ods {
 
 template<class T>
 class ArrayDeque {
 protected:
-	array<T> a;
-	int j;
-	int n;
-	void resize();
+	T *a;
+	int length; // capacity (size of allocated memory to which a points.)
+	int n; // current stack size
+	int j; // current starting point
+	/* The current i-th conceptual position (vis a vis the List interface) is 
+	   actual location (j + i)%length in a.
+    */
+	int a_index(int i) { return (j+i)%length; } // clock arithmetic on indices.
 public:
 	ArrayDeque();
-	virtual ~ArrayDeque();
-	int size();
-	T get(int i);
-	T set(int i, T x);
-	virtual void add(int i, T x);
-	virtual T remove(int i);
-	virtual void clear();
-};
+	~ArrayDeque();
+	inline int size() { return n; }
+	void clear();
+
+	// List interface
+	T get(int i); // return item in i-th conceptual position.
+	T set(int i, T x); // put x in i-th position, return what was there.
+	virtual void add(int i, T x); 
+	virtual T remove(int i); // return the removed item
+
+    // add and remove are fast at both ends, slow in the middle.
+
+	// standard Stack interface:
+	virtual void push(T x) { add(n, x); }
+	virtual void pop() { remove(n-1); } // Requires a nonempty Stack
+	T top() { return a[n-1]; } // Requires a nonempty Stack
+	bool isEmpty() { return n == 0; }
+
+	// standard Queue interface:
+	virtual void enqueue(T x) { add(0, x); }
+	virtual T dequeue() { return remove(n-1); }
+	
+	// Deque interface
+	void addLast(T x) { add(n, x); }
+	void addFirst(T x) { add(0, x); } 
+	T removeLast() { return remove(n-1); } 
+	T removeFirst() { return remove(0); }
+
+protected:
+	virtual void resize();
+}; // end of ArrayDeque class declaration
+
+// definitions of the member functions of ArrayDeque //
+
+template <class T>
+ArrayDeque<T>::ArrayDeque() {
+	a = NULL;
+	length = n = 0;
+}
+
+template<class T>
+ArrayDeque<T>::~ArrayDeque() {
+	delete a;
+}
 
 template<class T> inline
 T ArrayDeque<T>::get(int i) {
-	return a[(j + i) % a.length];
+	return a[a_index(i)];
 }
 
 template<class T> inline
 T ArrayDeque<T>::set(int i, T x) {
-	T y = a[(j + i) % a.length];
-	a[(j + i) % a.length] = x;
+	T y = a[a_index(i)];
+	a[a_index(i)] = x;
 	return y;
 }
 
 template<class T>
 void ArrayDeque<T>::clear() {
-	n = 0;
-	j = 0;
-	array<T> b(1);
-	a = b;
-}
-
-template<class T>
-ArrayDeque<T>::ArrayDeque() : a(1) {
-	n = 0;
-	j = 0;
-}
-
-template<class T>
-ArrayDeque<T>::~ArrayDeque() {
-}
-
-template<class T>
-void ArrayDeque<T>::resize() {
-	array<T> b(max(1, 2*n));
-	for (int k = 0; k < n; k++)
-		b[k] = a[(j+k)%a.length];
-	a = b;
-}
-
-template<class T>
-int ArrayDeque<T>::size() {
-	return n;
+	delete a;
+	a = NULL;
+	n = length = 0;
 }
 
 template<class T>
 void ArrayDeque<T>::add(int i, T x) {
-	if (n + 1 > a.length)	resize();
-	if (i < n/2) { // shift a[0],..,a[i-1] left one position
-		j = (j == 0) ? a.length - 1 : j - 1;
-		for (int k = 0; k <= i-1; k++)
-			a[(j+k)%a.length] = a[(j+k+1)%a.length];
-	} else { // shift a[i],..,a[n-1] right one position
-		for (int k = n; k > i; k--)
-			a[(j+k)%a.length] = a[(j+k-1)%a.length];
-	}
-	a[(j+i)%a.length] = x;
-	n++;
+	if (n == length) resize();
+	for (int k = n; k > i; k--)
+		a[a_index(k)] = a[a_index(k - 1)];
+	a[a_index(i)] = x;
+	++n;
 }
 
 template<class T>
 T ArrayDeque<T>::remove(int i) {
-    T x = a[(j+i)%a.length];
-    if (i < n/2) { // shift a[0],..,[i-1] right one position
-    	for (int k = i; k > 0; k--)
-			a[(j+k)%a.length] = a[(j+k-1)%a.length];
-		j = (j + 1) % a.length;
-    } else { // shift a[i+1],..,a[n-1] left one position
-		for (int k = i; k < n-1; k++)
-			a[(j+k)%a.length] = a[(j+k+1)%a.length];
-    }
-    n--;
-    if (3*n < a.length) resize();
-    return x;
+    T x = a[i];
+	if (length >= 3 * n) resize();
+	n--;
+	for (int j = i; j < n - 1; j++)
+		a[a_index(j)] = a[a_index(j + 1)];
+	return x;
+}
+
+template<class T>
+void ArrayDeque<T>::resize() {
+	int new_length = max(1, 2*n);
+	T * b = new T[new_length];
+	for (int i = 0; i < n; i++)
+		b[i] = a[a_index(i)];
+	delete a;
+	a = b;
+	length = new_length;
+	j = 0;
 }
 
 } /* namespace ods */
-
 
 #endif /* ARRAYDEQUE_H_ */

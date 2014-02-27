@@ -3,101 +3,79 @@
  *
  *  Created on: 2011-11-23
  *      Author: morin
+ *  Modifications: 2014Feb by Saunders
  */
 
 #ifndef ARRAYSTACK_H_
 #define ARRAYSTACK_H_
-#include "array.h"
-#include "utils.h"
 
 namespace ods {
 
 template<class T>
-class DualArrayDeque;
-
-template<class T>
 class ArrayStack {
 protected:
-	friend class DualArrayDeque<T>;
-	array<T> a;
-	int n;
-	virtual void resize();
+	T *a;
+	int length; // capacity (size of allocated memory to which a points.)
+	int n; // current stack size
 public:
-	ArrayStack();
-	virtual ~ArrayStack();
-	int size();
-	T get(int i);
+	ArrayStack() { a = NULL; length = n = 0; }
+	~ArrayStack() { delete a; }
+	int size() { return n; }
+	void clear() { delete a; a = NULL; length = n = 0; };
+
+	// List interface
+	T get(int i) { return a[i]; } 
 	T set(int i, T x);
-	virtual void add(int i, T x);
-	virtual void add(T x) { add(size(), x); }
-	virtual T remove(int i);
-	virtual void clear();
+	virtual void add(int i, T x); 
+	virtual T remove(int i); // return the removed item
 
 	// standard Stack interface:
-	void push(T x) { add(size(), x); }
-	void pop() { remove(size()-1); } // invalid to call pop on an empty Stack
-	T top() { return a[size()-1]; } // invalid to call top on an empty Stack
-	bool isEmpty() { return size() == 0; }
-};
+	void push(T x) { add(n, x); }
+	void pop() { remove(n-1); } // Requires a nonempty Stack
+	T top() { return a[n-1]; } // Requires a nonempty Stack
+	bool isEmpty() { return n == 0; }
+protected:
+	virtual void resize();
+}; // end of ArrayStack class declaration
 
-template<class T> inline
-int ArrayStack<T>::size() {
-	return n;
-}
 
-template<class T> inline
-T ArrayStack<T>::get(int i) {
-	return a[i];
-}
+// Definitions of the 4 ArrayStack member functions that weren't already defined //
 
 template<class T> inline
 T ArrayStack<T>::set(int i, T x) {
+	//if (i < 0 or i >= n) throw ListAccessError(i, n);
 	T y = a[i];
 	a[i] = x;
 	return y;
 }
 
 template<class T>
-void ArrayStack<T>::clear() {
-	n = 0;
-	array<T> b(1);
-	a = b;
-}
-
-template <class T>
-ArrayStack<T>::ArrayStack() : a(1) {
-	n = 0;
-}
-
-template<class T>
-ArrayStack<T>::~ArrayStack() {
-}
-
-template<class T>
-void ArrayStack<T>::resize() {
-	array<T> b(max(2 * n, 1));
-	for (int i = 0; i < n; i++)
-		b[i] = a[i];
-	a = b;
-}
-
-template<class T>
 void ArrayStack<T>::add(int i, T x) {
-	if (n + 1 > a.length) resize();
+	if (n == length) resize();
 	for (int j = n; j > i; j--)
 		a[j] = a[j - 1];
 	a[i] = x;
-	n++;
+	++n;
 }
 
 template<class T>
 T ArrayStack<T>::remove(int i) {
     T x = a[i];
+	if (length >= 3 * n) resize();
+	n--;
 	for (int j = i; j < n - 1; j++)
 		a[j] = a[j + 1];
-	n--;
-	if (a.length >= 3 * n) resize();
 	return x;
+}
+
+template<class T>
+void ArrayStack<T>::resize() {
+	length = max(1, 2*n);
+	T * b = new T[length];
+	for (int i = 0; i < n; i++)
+		b[i] = a[i];
+	delete a;
+	a = b;
 }
 
 } /* namespace ods */
