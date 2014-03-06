@@ -94,8 +94,10 @@ public:
 	T find(T x);
 
 	// List interface
-	void add(int i, T x) ;
-	T remove(int i) ;
+	T get(int i);
+	T set(int i, T x);
+	void add(int i, T x);
+	T remove(int i);
 
 }; // end class SLList
 
