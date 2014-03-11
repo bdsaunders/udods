@@ -109,7 +109,7 @@ T ArrayDeque<T>::remove(int i) {
 
 template<class T>
 void ArrayDeque<T>::resize() {
-	int new_length = max(1, 2*n);
+	int new_length = ( n == 0 ? 1 : 2*n );
 	T * b = new T[new_length];
 	for (int i = 0; i < n; i++)
 		b[i] = a[a_index(i)];
