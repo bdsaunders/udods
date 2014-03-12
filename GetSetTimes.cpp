@@ -8,8 +8,8 @@
 #include "ArrayDeque.h"
 #include "SLList.h"
 
-template<class FloatList> 
-int test(FloatList & L, int n);
+template<class NumList> 
+int test(NumList & L, int n);
 
 int main(){
 	int n = 1000000;
@@ -27,11 +27,18 @@ int main(){
 	std::cout << " for " << n << " trials." << std::endl << std::endl;
 }
 
-template<class FloatList> 
-int test(FloatList & L, int n){
+template<class NumList> 
+int test(NumList & L, int n){
+// build the list with Stack function push().
 	for (int i = 0; i < n; ++i)
-		L.push(-i);
+		L.push(0);
+
+// Now view it as a List and record the time of some get and set actions.
 	int start = clock();
+	// Set the entries.
+	for (int i = 0; i < n; ++i)
+		L.set(i, -i);
+	// Get and change the entries.
 	for (int i = 0; i < n; ++i) {
 		int x = L.get(i);
 		L.set(i, x+1);
