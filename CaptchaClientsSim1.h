@@ -133,7 +133,7 @@ void CaptchaClientsSim1::ServerResponse(CaptchaPair x){
     } else { // it was a solution attempt
 
         if (x.captchaText != 0 and x.captchaText != 100000) {
-            std::cout << "Error, server must respond negatively, 0, or positively, 10000, to a solution attempt.  Response was " << x.captchaText <<  std::endl;
+            std::cout << "Error, server must respond negatively, 0, or positively, 100000, to a solution attempt.  Response was " << x.captchaText <<  std::endl;
             exit(-1);
         }
         CaptchaPair check = challenges.find(cp);
