@@ -36,6 +36,14 @@ bool operator!=(CaptchaPair a, CaptchaPair b)
 
 // support function for SSets of CaptchaPairs
 
-int compare(CaptchaPair a, CaptchaPair b) { return a.userID - b.userID; }
+int compare(CaptchaPair a, CaptchaPair b) { return a.time - b.time; }
+
+// support for debugging
+
+ostream& operator<<(ostream& os, const CaptchaPair& p) {
+	os << "[" << p.userID << "," << p.captchaText << "]"; 
+	return os; 
+}
+
 
 #endif // CAPTCHAPAIR_H

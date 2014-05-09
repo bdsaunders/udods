@@ -47,18 +47,21 @@ protected:
     */
 
     CaptchaPair cp; // the pending request or solution proposal
-    CaptchaPair cp2; 
-    CaptchaPair cp3;
+    CaptchaPair cp2, cp3; // a couple of special cases
     ClientAction action; // the type of the pending request
 
     Text randomText() { return rand()%99999 + 1; }
-    User randomUser() { return rand()%999999999 + 1; }
+    User randomUser() { 
+        int x = (rand()*(1<<16) + rand());
+        if (x < 0) x = -x;
+        return x%999999999 + 1; 
+    }
 
 }; // class captchaClientsSim2
 
 CaptchaPair CaptchaClientsSim2::ClientReqOrSol() {
 
-    if (k < n+5) {// initial buildup and checks
+    if (k < n+15) {// initial buildup and checks
 	if (k == n/2) {// explicit subsequentReq 
 		cp = cp2; 
 		action = subsequentReq;
@@ -68,19 +71,17 @@ CaptchaPair CaptchaClientsSim2::ClientReqOrSol() {
 	} else if (k == n-3) {// explicit subsequentReq
 		cp = cp3;
 		action = subsequentReq;
-	} else if (k == n+3) {// fossil subsequentReq
+	} else if (k == n+13) {// fossil subsequentReq
 		cp = cp3;
 		action = fossilSol;
-	} else if (k == n+4) {// fossil subsequentReq 
+	} else if (k == n+14) {// fossil subsequentReq 
 		cp = cp2;
 		action = fossilSol;
 	} else { // new req
 		do { cp.userID = randomUser(); } 
-		while (challenges.find(cp) != CaptchaPair());
+                    while (challenges.find(cp) != CaptchaPair());
 		cp.captchaText = 0;
 		action = firstReq;
-		if (k == 2) cp2 = cp;
-		if (k == 3) cp3 = cp;
 	}
     } else {// standard pattern
 	int dodeca = rand()%20;
@@ -89,35 +90,38 @@ CaptchaPair CaptchaClientsSim2::ClientReqOrSol() {
 		 dodeca < 16 ? trueSol :
 		 dodeca < 19 ? falseSol : bogusSol;
 	
-	switch (action) {
-		case firstReq: //first time request, 40
-			do { cp.userID = randomUser(); } 
-			while (challenges.find(cp) != CaptchaPair());
-			cp.captchaText = 0;
-			break;
-		case subsequentReq: //repeat request, 10
-			cp = challenges.random();
-			cp.captchaText = 0;
-			break;
-		case trueSol: // 30
-			cp = challenges.random();
-			break;
-		case falseSol: // 15
-			cp = challenges.random();
-			Text t;
-			do {t = randomText(); } while (t == cp.captchaText);
-			cp.captchaText = t;
-			break;
-		case bogusSol: // 
-			do { cp.userID = randomUser(); } 
-			while (challenges.find(cp) != CaptchaPair());	
-			cp.captchaText = randomText();
-			break;
-		case fossilSol: // can't get here
-			cout << "Error in clients simulator" << endl;
-			exit(-1);
-	}
     }
+    switch (action) {
+    	case firstReq: //first time request, 40
+            do { cp.userID = randomUser(); } 
+            while (challenges.find(cp) != CaptchaPair());
+                cp.captchaText = 0;
+            break;
+        case subsequentReq: //repeat request, 10
+            cp = challenges.random();
+            cp.captchaText = 0;
+            break;
+        case trueSol: // 30
+            cp = challenges.random();
+            break;
+        case falseSol: // 15
+            cp = challenges.random();
+            Text t;
+            do {t = randomText(); } while (t == cp.captchaText);
+            cp.captchaText = t;
+            break;
+        case bogusSol: // 
+            do { cp.userID = randomUser(); } 
+            while (challenges.find(cp) != CaptchaPair());	
+            cp.captchaText = randomText();
+            break;
+        case fossilSol: // can't get here
+            cp.captchaText = randomText();
+            break;
+    }
+	cout << action << " ";
+    if (k == 2) {cp2 = cp; cp2.captchaText = randomText();}
+    if (k == 3) {cp3 = cp; cp3.captchaText = randomText();}
     return cp;
 }
 
@@ -135,7 +139,7 @@ void CaptchaClientsSim2::ServerResponse(CaptchaPair x){
  	case firstReq: //first time request
 	case subsequentReq: //subsequent request
 		if (1 > x.captchaText or 99999 < x.captchaText) { // server messed up
-			cout << "Error, server must give a valid challenge text to a captcha request." << endl;
+			cout << "Error, server must give a valid challenge text to a captcha request." << x << endl;
 			exit(-1);
         	} else { // record the challenge for future solution
 			if (not challenges.add(x)) 
