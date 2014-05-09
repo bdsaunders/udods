@@ -30,6 +30,10 @@ protected:
 	using BinaryTree<Node>::nil;
 	using BinarySearchTree<Node,T>::null;
 	using BinarySearchTree<Node,T>::n;
+	using BinarySearchTree<Node,T>::findLast;
+	using BinarySearchTree<Node,T>::splice;
+	using BinarySearchTree<Node,T>::rotateLeft;
+	using BinarySearchTree<Node,T>::rotateRight;
 	void bubbleUp(Node *u);
 	void trickleDown(Node *u);
 public:
@@ -40,6 +44,9 @@ public:
 	virtual bool remove(T x);
 	virtual Treap<Node,T>* split(T x);
 	virtual void absorb(Treap<Node,T> &t);
+	T first() { return firstNode(r)->x; }
+protected:
+	Node *firstNode(Node *u) { return u->left == nil ? u : firstNode(u->left);}
 };
 
 template<class T>

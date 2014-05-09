@@ -71,7 +71,7 @@ BinarySearchTree<Node,int>::BinarySearchTree()  {
 
 template<class Node, class T>
 BinarySearchTree<Node,T>::BinarySearchTree() {
-	this->null = (T)NULL;  // won't work for non-primitive types
+	this->null = T();  // won't work for non-primitive types
 	n = 0;
 }
 
